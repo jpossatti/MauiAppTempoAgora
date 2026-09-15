@@ -14,6 +14,7 @@ namespace MauiAppTempoAgora
 
         private async void Button_Clicked(object sender, EventArgs e)
         {
+            
             try
             {
                 if (!string.IsNullOrEmpty(txt_cidade.Text))
@@ -49,6 +50,10 @@ namespace MauiAppTempoAgora
                     lbl_res.Text = "Preencha a cidade.";
                 }
 
+            }
+            catch(Exception ex) when (ex.Message == "CidadeNaoEncontrada")
+            {
+                await DisplayAlert("Cidade Não Encontrada", "Não conseguimos localizar a cidade.", "OK");
             }
             catch (Exception ex)
             {

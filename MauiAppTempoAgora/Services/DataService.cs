@@ -17,6 +17,13 @@ namespace MauiAppTempoAgora.Services
             using (HttpClient client = new HttpClient())
             {
                 HttpResponseMessage resp = await client.GetAsync(url);
+                if(resp.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    throw new Exception("CidadeNaoEncontrada");
+                }
+
+                resp.EnsureSuccessStatusCode();
+
                 if (resp.IsSuccessStatusCode)
                 {
                     string json = await resp.Content.ReadAsStringAsync();
@@ -37,6 +44,7 @@ namespace MauiAppTempoAgora.Services
                         sunset = sunset.ToString("HH:mm:ss"),
                         speed = (double)rascunho["wind"]["speed"],
                         visibility = (int)rascunho["visibility"],
+                        
 
                     };// Fecha obj do tempo
                 }// Fecha if se o status do servidor foi com sucesso
