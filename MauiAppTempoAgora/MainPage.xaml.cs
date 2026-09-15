@@ -55,10 +55,15 @@ namespace MauiAppTempoAgora
             {
                 await DisplayAlert("Cidade Não Encontrada", "Não conseguimos localizar a cidade.", "OK");
             }
+            catch (Exception ex) when (ex.Message == "SemConexao")
+            {
+                await DisplayAlert("Sem Conexão", "Não foi possível se conectar à internet. Verifique sua rede e tente novamente.", "OK");
+            }
             catch (Exception ex)
             {
                 await DisplayAlert("Ops", ex.Message, "OK");
             }
+
         }
     }
 
