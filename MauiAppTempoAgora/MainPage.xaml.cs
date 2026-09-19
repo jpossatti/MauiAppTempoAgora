@@ -5,16 +5,15 @@ namespace MauiAppTempoAgora
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
-
+        
         public MainPage()
         {
             InitializeComponent();
         }
 
-        private async void Button_Clicked(object sender, EventArgs e)
+        private async void Button_Clicked_Previsao(object sender, EventArgs e)
         {
-            
+
             try
             {
                 if (!string.IsNullOrEmpty(txt_cidade.Text))
@@ -51,7 +50,7 @@ namespace MauiAppTempoAgora
                 }
 
             }
-            catch(Exception ex) when (ex.Message == "CidadeNaoEncontrada")
+            catch (Exception ex) when (ex.Message == "CidadeNaoEncontrada")
             {
                 await DisplayAlert("Cidade Não Encontrada", "Não conseguimos localizar a cidade.", "OK");
             }
@@ -65,6 +64,70 @@ namespace MauiAppTempoAgora
             }
 
         }
-    }
+    
 
+        private async void Button_Clicked_Localizacao(object sender, EventArgs e)
+        {
+            try 
+            {
+                GeolocationRequest request = new GeolocationRequest(
+                    GeolocationAccuracy.Best, 
+                    TimeSpan.FromSeconds(10)
+                 );
+
+                Location? local = await Geolocation.Default.GetLocationAsync(request);
+
+                if (local != null)
+                {
+                    string local_disp = $"Latitude: {local.Latitude} \n" +
+                                        $"Longitude: {local.Longitude} \n" +
+                                        $"Altitude: {local.Altitude} \n" +
+                                        $"Accuracy: {local.Accuracy} ";
+                    lbl_coords.Text = local_disp;
+
+                    // pega nome da cidade que esta nas coordenadas
+                    GetCidade(local.Latitude, local.Longitude);
+                }
+                else 
+                {
+                    lbl_coords.Text = "Nenhuma localização.";
+                }
+            }
+            catch (FeatureNotSupportedException fnsEx)
+            {
+                await DisplayAlert("Erro: Dispositivo não suporta.", fnsEx.Message, "OK");
+            }
+            catch (FeatureNotEnabledException fneEx) 
+            {
+                await DisplayAlert("Erro: Localização Desabilitada.", fneEx.Message, "OK");
+            }
+            catch (PermissionException pEx)
+            {
+                await DisplayAlert("Erro: Permissão Negada.", pEx.Message, "OK");
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Erro: Ocorreu um erro inesperado.", ex.Message, "OK");
+            }
+        }
+
+        private async void GetCidade(double lat, double lon)
+        {
+            try
+            {
+
+                IEnumerable<Placemark> places = await Geocoding.Default.GetPlacemarksAsync(lat, lon);
+                Placemark? place = places.FirstOrDefault();
+
+                if (place != null)
+                {
+                    txt_cidade.Text = place.Locality;
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Erro: Não foi possível obter a cidade.", ex.Message, "OK");
+            }
+        }
+    }
 }
